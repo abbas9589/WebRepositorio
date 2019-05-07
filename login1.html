@@ -4,7 +4,7 @@
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-		<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+		<script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
 		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 		<title>Painel Admistrativo - Laboratório UNIAMERICA</title>
@@ -25,26 +25,49 @@
 				margin: 30px;
 			}
 		</style>
+		<script type="text/javascript">
+			$(function(){
+				$("input[value='Entrar']").click(function(e){
+					e.preventDefault();
+					$.get("login.php", $(".login-form").serialize(), function(data){
+						console.log(data);
+					}, 'json');
+				});
+			})
+		</script>
 	</head>
 		
 	<body>
 		<img id="uniamerica-logo" src="http://uniamerica.br/wp-content/uploads/2014/11/logo-1.png" alt="Unimaerica">
 		<h3 align="center" >Painel Admistrativo - Laboratorio Uniamerica</h3>
+		
+		<!-- FORMULÁRIO DE LOGIN -->
 		<form class="login-form" align="center" action="adm1.html" method="get">
 			<p>Faça login para acessar o painel</p>
+			
+			
+			<!-- INPUT DE USUARIO -->
 			<div class="input-group mb-3">
 			  <input type="text" name="usuario" class="form-control" placeholder="Usuário" aria-label="Usuário" aria-describedby="basic-addon1">
 			</div>
+			
+			<!-- INPUT DE SENHA -->
 			<div class="input-group mb-3">
 			  <input type="text" name="password" class="form-control" placeholder="Senha" aria-label="Senha" aria-describedby="basic-addon1">
 			</div>
 
+			<!-- BOTAO DE ENVIAR -->
 			<input type="submit" class="btn btn-primary" value="Entrar">
+			
+			
 			<!-- Código antigo
 			Usuário : <input type="text" id="nome"/>	
 			Senha   : <input type="password" id="senha"/>
 			<input type="submit"> !-->
 		</form>
+	
+	
+		
 	</body>
 	
 </html>
