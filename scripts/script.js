@@ -1,18 +1,45 @@
-$(function () {
+const address = "192.168.1.8";
+const cursos = {
+        
+    1: "Engenharia Ambiental",
+    2: "Engenharia Cívil",
+    3: "Engenharia Elétrica",
+    4: "Engenharia Eletrônica",
+    5: "Engenharia Mecânica",
+    6: "Engenharia de Energia",
+    7: "Engenharia de Software",
+    8: "Engenharia de Produção",
+    9: "Análise e desenvolvimento de sistemas",
+    10: "Outro"
 
-    const address = "10.35.221.161";
+};
+
+$(function () {
+    
+    for (const i in cursos) {
+        if (cursos.hasOwnProperty(i)) {
+            const element = cursos[i];
+            $("[name=cursos]").append('<option value="'+ i +'">'+ element +'</option>');
+        }
+    }
+
+    $.get("http://" + address + "/api/log/", 'json')
+        .done(data => {
+            updateTables(data);
+        });
 
     $("input[name=ra]").hide();
     
     $(".update-finger").click(event => {
-        if (!$("input[name=id]").val()) {
+        const id = $("input[name=id]").val();
+        if (!id || id < 0) {
             showError('danger', "Informe um ID antes de inserir a digital");
             return;
         }
-        $.post("http://" + address + "/api/abrircadastro/" + $("input[name=id]").val(),
+        $.post("http://" + address + "/api/abrircadastro/" + id,
             "json"
         ).done(data => {
-            console.log(data);
+            updateForms();
         });
     });
 
@@ -21,7 +48,11 @@ $(function () {
         Envia um POST
     */
     $(".cad").click(event => {
-        $.post( "http://" + address + "/api/registrar/" + $("input[name=id]").val() + "/" + $("input[name=name]").val() + "/" + ($("input[name=ra]").val() ? $("input[name=ra]").val() : 0),"json")
+        $.post( "http://" + address + "/api/registrar/" + $("input[name=id]").val() 
+                + "/" + $("input[name=name]").val() 
+                + "/" + ($("input[name=ra]").val() ? $("input[name=ra]").val() : 0)
+                + "/" + $("input[name=tipo]").prop("checked", true).val()
+                + "/" + $("[name=cursos] option:selected").val(),"json")
             .done(data => {
                 console.log(data);
             })
@@ -44,7 +75,11 @@ $(function () {
                 "?name=" +
                 $("input[name=name]").val() +
                 "&RA=" +
-                ($("input[name=ra]").val() ? $("input[name=ra]").val() : 0),
+                ($("input[name=ra]").val() ? $("input[name=ra]").val() : 0) +
+                "&aluno=" +
+                ($("input[name=tipo]").prop("checked")) +
+                "&curso=" +
+                $("[name=cursos] option:selected").val(),
             method: "PUT"
         })
             .done(data => {
@@ -68,31 +103,7 @@ $(function () {
             return;
         }
 
-        $.get(
-            "http://" + address + "/api/cadastros/" + $("input[name=id]").val(),
-            "json"
-        )
-            .done(data => {
-                $("input[name=name]").val(data.name);
-                if(!data.ra || data.ra == 0){
-                    $("input[name=ra]").hide();
-                    $("input[id=professor-radio]").prop("checked", true);
-                } else {
-                    $("input[name=ra]").show();
-                    $("input[name=ra]").val(data.ra);
-                    $("input[id=aluno-radio]").prop("checked", true);
-                }
-                $(".alt").removeAttr("disabled");
-                $(".cad").attr("disabled", "disabled");
-            })
-            .fail(data => {
-                showError('danger', "Cadastro não encontrado");
-                console.log("cadastro nao existe");
-                $("input[name=name]").val("");
-                $("input[name=ra]").val("");
-                $(".alt").attr("disabled", "disabled");
-                $(".cad").removeAttr("disabled");
-            });
+        updateForms();
     });
 
     /*
@@ -108,6 +119,59 @@ $(function () {
         }
     });
 });
+
+function updateTables(data) {
+    let arr = [];
+    for(const key in data) {
+        if (data.hasOwnProperty(key)) {
+            arr.push(data[key]);
+        }
+    }
+
+    data = arr.sort((a,b) => {
+        return b.timestamp - a.timestamp;
+    });
+
+    for(const i in data) {
+        const date = new Date(data[i].timestamp);
+        const day = ("0" + date.getDay()).substr(-2);
+        const month = ("0" + date.getMonth()).substr(-2);
+        const year = date.getFullYear();
+        $(".logs").append("<tr>");
+        $(".logs").append('<th scope="row">' + data[i].id + '</th>');
+        $(".logs").append('<td>' + date.getHours() + ":" + date.getMinutes() + " de " + day + "/" + month + "/" + year + '</td>');
+        $(".logs").append("</tr>");
+    }
+}
+
+function updateForms() {
+    $.get(
+        "http://" + address + "/api/cadastros/" + $("input[name=id]").val(),
+        "json"
+    )
+        .done(data => {
+            $("input[name=name]").val(data.name);
+            $("[name=cursos]").val(data.curso);
+            if(!data.ra || data.ra == 0){
+                $("input[name=ra]").hide();
+                $("input[id=professor-radio]").prop("checked", true);
+            } else {
+                $("input[name=ra]").show();
+                $("input[name=ra]").val(data.ra);
+                $("input[id=aluno-radio]").prop("checked", true);
+            }
+            $(".alt").removeAttr("disabled");
+            $(".cad").attr("disabled", "disabled");
+        })
+        .fail(data => {
+            showError('danger', "Cadastro não encontrado");
+            console.log("cadastro nao existe");
+            $("input[name=name]").val("");
+            $("input[name=ra]").val("");
+            $(".alt").attr("disabled", "disabled");
+            $(".cad").removeAttr("disabled");
+        });
+}
 function showError(alertType, msg) {
     const alert = $(".alert");
     let classToAdd;
