@@ -1,13 +1,15 @@
 $(function () {
 
-    $("input[name=ra]").hide();
+    const address = "10.35.221.161";
 
+    $("input[name=ra]").hide();
+    
     $(".update-finger").click(event => {
         if (!$("input[name=id]").val()) {
             showError('danger', "Informe um ID antes de inserir a digital");
             return;
         }
-        $.post("http://localhost/api/abrircadastro/" + $("input[name=id]").val(),
+        $.post("http://" + address + "/api/abrircadastro/" + $("input[name=id]").val(),
             "json"
         ).done(data => {
             console.log(data);
@@ -19,7 +21,7 @@ $(function () {
         Envia um POST
     */
     $(".cad").click(event => {
-        $.post( "http://localhost/api/registrar/" + $("input[name=id]").val() + "/" + $("input[name=name]").val() + "/" + ($("input[name=ra]").val() ? $("input[name=ra]").val() : 0),"json")
+        $.post( "http://" + address + "/api/registrar/" + $("input[name=id]").val() + "/" + $("input[name=name]").val() + "/" + ($("input[name=ra]").val() ? $("input[name=ra]").val() : 0),"json")
             .done(data => {
                 console.log(data);
             })
@@ -28,13 +30,16 @@ $(function () {
             });
     });
     /*
+
+
+
         Botao de alteração de cadastro
         Envia um PUT
     */
     $(".alt").click(event => {
         $.ajax({
             url:
-                "http://localhost/api/cadastro/" +
+                "http://" + address + "/api/cadastro/" +
                 $("input[name=id]").val() +
                 "?name=" +
                 $("input[name=name]").val() +
@@ -64,7 +69,7 @@ $(function () {
         }
 
         $.get(
-            "http://localhost/api/cadastros/" + $("input[name=id]").val(),
+            "http://" + address + "/api/cadastros/" + $("input[name=id]").val(),
             "json"
         )
             .done(data => {
